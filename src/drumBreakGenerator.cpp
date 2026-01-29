@@ -1,5 +1,7 @@
 #include <iostream>
 
+#include "midi.h"
+
 int main(int argc, char* argv[]) {
 
     std::cout << "HEYYY" << std::endl;
