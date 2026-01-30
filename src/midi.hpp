@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <filesystem>
 
 class MIDISequence {
 public:
@@ -21,10 +22,11 @@ public:
     MIDISequence& operator=(MIDISequence&&) = default;
 
     void addEvent(char t, Instrument instr);
-    // void removeEvent(char t, Instrument instr);
 
     void append(const MIDISequence&);
     void sort();
+
+    // void writeToFile(std::path);
 
     std::string to_string() const;
 };

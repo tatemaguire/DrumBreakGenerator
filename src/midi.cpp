@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 
-#include "midi.h"
+#include "midi.hpp"
 
 MIDISequence::MIDISequence(): events{} {};
 
