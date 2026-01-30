@@ -4,6 +4,8 @@
 #include <string>
 #include <filesystem>
 
+const uint8_t SEQ_SIZE = 16;
+
 class MIDISequence {
 public:
     enum class Instrument {kick, snare, hihat, openhat};

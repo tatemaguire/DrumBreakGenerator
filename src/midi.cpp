@@ -7,7 +7,6 @@
 
 typedef std::basic_string<uint8_t> ByteString;
 const uint8_t STEP_SIZE = 1;
-const uint8_t SEQ_SIZE = 16;
 
 // -----------------------------
 // Helper Function Declaration
@@ -91,8 +90,12 @@ bool MIDISequence::writeToFile(std::string p) {
     writeByteString(f, hexToByteString("0000000600000001004"));
     
     f << "MTrk";
+
+    int ts = track.size();
+    uint8_t dig1 = ts % 256;
+    uint8_t dig2 = ts / 256;
     
-    ByteString trackSize{0, 0, 0, static_cast<uint8_t>(track.size())}; // TODO: FIX THIS MESS OEGHG
+    ByteString trackSize{0, 0, dig2, dig1};
     writeByteString(f, trackSize);
     writeByteString(f, track);
 
