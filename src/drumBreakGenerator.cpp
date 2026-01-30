@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "midi.h"
+#include "midi.hpp"
 
 int main(int argc, char* argv[]) {
 

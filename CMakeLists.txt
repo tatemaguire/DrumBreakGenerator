@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 4.2.1)
 project(DrumBreakGenerator)
 
 add_executable(DrumBreakGenerator)
-target_compile_features(DrumBreakGenerator PUBLIC cxx_std_20)
 
 target_sources(DrumBreakGenerator
     PRIVATE
@@ -29,5 +28,5 @@ target_sources(MIDISequence
     PRIVATE
         src/midi.cpp
     PUBLIC
-        src/midi.h
+        src/midi.hpp
 )
