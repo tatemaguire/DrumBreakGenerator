@@ -9,6 +9,11 @@ target_sources(DrumBreakGenerator
         src/drumBreakGenerator.cpp
 )
 
+target_link_libraries(DrumBreakGenerator
+    PRIVATE
+        MIDISequence
+)
+
 add_executable(MIDITest)
 
 target_sources(MIDITest
