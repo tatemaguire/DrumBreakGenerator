@@ -6,7 +6,7 @@
 #include "midi.hpp"
 
 typedef std::basic_string<uint8_t> ByteString;
-const uint8_t STEP_SIZE = 4;
+const uint8_t STEP_SIZE = 1;
 const uint8_t SEQ_SIZE = 16;
 
 // -----------------------------
@@ -29,7 +29,7 @@ void MIDISequence::addEvent(char t, Instrument instr) {
 
 bool MIDISequence::writeToFile(std::string p) {
     // Time Signature
-    ByteString track = hexToByteString("00FF580404022408");
+    ByteString track = hexToByteString("00FF580404022401");
 
     std::vector<Event> currentEvents{};
     uint8_t lastStep = 0;
@@ -77,6 +77,7 @@ bool MIDISequence::writeToFile(std::string p) {
         track += 100; // VEL
     }
     deltaTime = newDeltaTime;
+    deltaTime = 0;
     
     // track += hexToByteString("00903C640490436404803C6400804364");
 
