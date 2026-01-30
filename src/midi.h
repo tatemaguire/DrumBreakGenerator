@@ -21,6 +21,10 @@ public:
     MIDISequence& operator=(MIDISequence&&) = default;
 
     void addEvent(char t, Instrument instr);
+    // void removeEvent(char t, Instrument instr);
+
+    void append(const MIDISequence&);
+    void sort();
 
     std::string to_string() const;
 };
