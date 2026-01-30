@@ -17,5 +17,7 @@ int main(int argc, char* argv[]) {
     std::cout << "A: " << A << std::endl;
     std::cout << "B: " << B << std::endl;
 
+    A.writeToFile("out.txt");
+
     return 0;
 }

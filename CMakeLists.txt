@@ -10,7 +10,6 @@ target_sources(DrumBreakGenerator
 )
 
 add_executable(MIDITest)
-target_compile_features(MIDITest PUBLIC cxx_std_20)
 
 target_sources(MIDITest
     PRIVATE

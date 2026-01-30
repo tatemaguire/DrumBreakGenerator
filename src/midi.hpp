@@ -26,7 +26,7 @@ public:
     void append(const MIDISequence&);
     void sort();
 
-    // void writeToFile(std::path);
+    bool writeToFile(std::string);
 
     std::string to_string() const;
 };

@@ -1,5 +1,7 @@
 #include <iostream>
+#include <fstream>
 #include <vector>
+#include <filesystem>
 
 #include "midi.hpp"
 
@@ -8,6 +10,13 @@ MIDISequence::MIDISequence(): events{} {};
 void MIDISequence::addEvent(char t, Instrument instr) {
     MIDISequence::Event event{t, instr};
     events.push_back(event);
+}
+
+bool MIDISequence::writeToFile(std::string p) {
+    std::ofstream f{p};
+    if (!f) return false;
+    f << *this;
+    return true;
 }
 
 std::string MIDISequence::to_string() const {
