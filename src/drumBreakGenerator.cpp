@@ -5,13 +5,20 @@
 
 #include "midi.hpp"
 
-MIDISequence generateRhythm(float density, MIDISequence::Instrument instr);
+MIDISequence generateRhythm(float density, Instrument instr);
 int randInt(int min, int max);
 
 int main(int argc, char* argv[]) {
-    if (argc != 3) {
-        std::cout << "Usage: " << argv[0] << " <density 0-1> <filepath>" << std::endl;
+    if (argc < 2) {
+        std::cout << "Usage: " << argv[0] << " <density 0-1>" << std::endl;
         return 1;
+    }
+
+    std::string outPath;
+    if (argc >= 3) {
+        outPath = argv[2];
+    } else {
+        outPath = "out.mid";
     }
 
     srand(time(0));
@@ -19,28 +26,34 @@ int main(int argc, char* argv[]) {
     float density = std::stof(argv[1]);
     
     // generation
-    MIDISequence A = generateRhythm(density, MIDISequence::Instrument::kick);
-    MIDISequence B = generateRhythm(density, MIDISequence::Instrument::snare);
-    MIDISequence C = generateRhythm(density, MIDISequence::Instrument::hihat);
-    MIDISequence D = generateRhythm(density, MIDISequence::Instrument::openhat);
+    MIDISequence seq = generateSequence(density);
+    
+    std::cout << seq << std::endl;
+
+    // write file
+    seq.writeToFile(outPath);
+
+    return 0;
+}
+
+MIDISequence generateSequence(float density) {
+    MIDISequence A = generateRhythm(density, Instrument::kick);
+    MIDISequence B = generateRhythm(density, Instrument::snare);
+    MIDISequence C = generateRhythm(density, Instrument::hihat);
+    MIDISequence D = generateRhythm(density, Instrument::openhat);
 
     A.append(B);
     A.append(C);
     A.append(D);
 
-    if (A.events.size() == 0) A.addEvent(0, MIDISequence::Instrument::snare);
+    if (A.events.size() == 0) A.addEvent(0, Instrument::snare);
 
     A.sort();
-    std::cout << A << std::endl;
 
-
-    // write file
-    A.writeToFile(argv[2]);
-
-    return 0;
+    return A;
 }
 
-MIDISequence generateRhythm(float density, MIDISequence::Instrument instr) {
+MIDISequence generateRhythm(float density, Instrument instr) {
     int division = std::ceil(randInt(1, 4) * density);
     division = 5 - division;
     int offset = randInt(0, division);

@@ -7,6 +7,7 @@
 
 typedef std::basic_string<uint8_t> ByteString;
 const uint8_t STEP_SIZE = 1;
+std::vector<std::string> INSTRUMENT_NAMES = { "Kick", "Snare", "Closed Hi-hat", "Open Hi-hat" };
 
 // -----------------------------
 // Helper Function Declaration
@@ -47,9 +48,9 @@ bool MIDISequence::writeToFile(std::string p) {
             for (const Event& cev : currentEvents) {
                 track += deltaTime;
                 deltaTime = 0;
-                track += 128; // NOTE OFF
+                track += 0x80; // NOTE OFF
                 track += static_cast<uint8_t>(cev.instr)+36; // KEY
-                track += 100; // VEL
+                track += 0x64; // VEL
             }
             currentEvents.clear();
             deltaTime = newDeltaTime;
@@ -58,9 +59,9 @@ bool MIDISequence::writeToFile(std::string p) {
 
         track += deltaTime;
         deltaTime = 0;
-        track += 144; // NOTE ON
+        track += 0x90; // NOTE ON
         track += static_cast<uint8_t>(ev.instr)+36; // KEY
-        track += 100; // VEL
+        track += 0x64; // VEL
     }
 
     uint8_t deltaTime = ((SEQ_SIZE-1) - lastStep) * STEP_SIZE;
@@ -77,8 +78,6 @@ bool MIDISequence::writeToFile(std::string p) {
     }
     deltaTime = newDeltaTime;
     deltaTime = 0;
-    
-    // track += hexToByteString("00903C640490436404803C6400804364");
 
     track += deltaTime;
     track += hexToByteString("FF2F00"); // end of clip
@@ -105,7 +104,7 @@ bool MIDISequence::writeToFile(std::string p) {
 std::string MIDISequence::to_string() const {
     std::string result = "MIDISequence:\n";
     for (const Event& ev : events) {
-        result += "\tt: " + std::to_string(ev.t) + "\tinstr: " + std::to_string(static_cast<char>(ev.instr)) + "\n";
+        result += "\tt: " + std::to_string(ev.t) + "\tinstr: " + INSTRUMENT_NAMES[ev.instr] + "\n";
     }
     return result;
 }

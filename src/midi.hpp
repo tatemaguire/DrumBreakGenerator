@@ -3,13 +3,15 @@
 #include <iostream>
 #include <string>
 #include <filesystem>
+#include <vector>
 
 const uint8_t SEQ_SIZE = 16;
 
+enum Instrument {kick, snare, hihat, openhat};
+extern std::vector<std::string> INSTRUMENT_NAMES;
+
 class MIDISequence {
 public:
-    enum class Instrument {kick, snare, hihat, openhat};
-
     struct Event {
         char t; // step value 0-15
         Instrument instr;
