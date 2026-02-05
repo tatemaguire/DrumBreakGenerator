@@ -5,7 +5,7 @@
 #include <filesystem>
 #include <vector>
 
-const uint8_t SEQ_SIZE = 16;
+const char SEQ_SIZE = 16;
 
 enum Instrument {kick, snare, hihat, openhat};
 extern std::vector<std::string> INSTRUMENT_NAMES;

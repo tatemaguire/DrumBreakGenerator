@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
+#include <string>
 
 #include "midi.hpp"
 #include "generator.hpp"

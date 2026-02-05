@@ -2,11 +2,12 @@
 #include <fstream>
 #include <vector>
 #include <filesystem>
+#include <string>
 
 #include "midi.hpp"
 
-typedef std::basic_string<uint8_t> ByteString;
-const uint8_t STEP_SIZE = 1;
+typedef std::string ByteString;
+const char STEP_SIZE = 1;
 std::vector<std::string> INSTRUMENT_NAMES = { "Kick", "Snare", "Closed Hi-hat", "Open Hi-hat" };
 
 // -----------------------------
@@ -32,24 +33,24 @@ bool MIDISequence::writeToFile(std::string p) {
     ByteString track = hexToByteString("00FF580404022401");
 
     std::vector<Event> currentEvents{};
-    uint8_t lastStep = 0;
+    char lastStep = 0;
 
     sort();
     for (const Event& ev : events) {
 
-        uint8_t deltaTime = (ev.t - lastStep) * STEP_SIZE;
+        char deltaTime = (ev.t - lastStep) * STEP_SIZE;
         lastStep = ev.t;
 
         // if deltaTime is real, then note OFF!
         if (deltaTime > 0) {
-            uint8_t newDeltaTime = deltaTime - STEP_SIZE;
+            char newDeltaTime = deltaTime - STEP_SIZE;
             deltaTime = STEP_SIZE;
             if (currentEvents.empty()) newDeltaTime += STEP_SIZE;
             for (const Event& cev : currentEvents) {
                 track += deltaTime;
                 deltaTime = 0;
                 track += 0x80; // NOTE OFF
-                track += static_cast<uint8_t>(cev.instr)+36; // KEY
+                track += static_cast<char>(cev.instr)+36; // KEY
                 track += 0x64; // VEL
             }
             currentEvents.clear();
@@ -60,21 +61,21 @@ bool MIDISequence::writeToFile(std::string p) {
         track += deltaTime;
         deltaTime = 0;
         track += 0x90; // NOTE ON
-        track += static_cast<uint8_t>(ev.instr)+36; // KEY
+        track += static_cast<char>(ev.instr)+36; // KEY
         track += 0x64; // VEL
     }
 
-    uint8_t deltaTime = ((SEQ_SIZE-1) - lastStep) * STEP_SIZE;
+    char deltaTime = ((SEQ_SIZE-1) - lastStep) * STEP_SIZE;
 
-    uint8_t newDeltaTime = deltaTime - STEP_SIZE;
+    char newDeltaTime = deltaTime - STEP_SIZE;
     deltaTime = STEP_SIZE;
     if (currentEvents.empty()) newDeltaTime += STEP_SIZE;
     for (const Event& cev : currentEvents) {
         track += deltaTime;
         deltaTime = 0;
-        track += 128; // NOTE OFF
-        track += static_cast<uint8_t>(cev.instr)+36; // KEY
-        track += 100; // VEL
+        track += 0x80; // NOTE OFF
+        track += static_cast<char>(cev.instr)+36; // KEY
+        track += 0x64; // VEL
     }
     deltaTime = newDeltaTime;
     deltaTime = 0;
@@ -91,8 +92,8 @@ bool MIDISequence::writeToFile(std::string p) {
     f << "MTrk";
 
     int ts = track.size();
-    uint8_t dig1 = ts % 256;
-    uint8_t dig2 = ts / 256;
+    char dig1 = ts % 256;
+    char dig2 = ts / 256;
     
     ByteString trackSize{0, 0, dig2, dig1};
     writeByteString(f, trackSize);
@@ -130,7 +131,7 @@ std::ostream& operator<<(std::ostream& os, const MIDISequence& seq) {
 ByteString hexToByteString(const std::string& hex) {
     ByteString bs{};
     for (size_t i = 0; i < hex.length(); i += 2) {
-        uint8_t byte = std::stoi(hex.substr(i, 2), 0, 16);
+        char byte = std::stoi(hex.substr(i, 2), 0, 16);
         bs.push_back(byte);
     }
     return bs;
