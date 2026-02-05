@@ -113,7 +113,8 @@ bool MIDISequence::writeToFile(std::string p) {
 std::string MIDISequence::to_string() const {
     std::string result = "MIDISequence:\n";
     for (const Event& ev : events) {
-        result += "\tt: " + std::to_string(ev.t) + "\tinstr: " + INSTRUMENT_NAMES[ev.instr] + "\n";
+        std::string instrName = INSTRUMENT_NAMES[static_cast<int>(ev.instr)];
+        result += "\tt: " + std::to_string(ev.t) + "\tinstr: " + instrName + "\n";
     }
     return result;
 }

@@ -7,7 +7,7 @@
 
 const char SEQ_SIZE = 16;
 
-enum Instrument {kick, snare, hihat, openhat};
+enum class Instrument {kick, snare, hihat, openhat};
 extern std::vector<std::string> INSTRUMENT_NAMES;
 
 class MIDISequence {
