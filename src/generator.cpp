@@ -7,11 +7,13 @@
 #include "midi.hpp"
 #include "generator.hpp"
 
-MIDISequence generateSequence(float density) {
-    MIDISequence A = generateRhythm(density, Instrument::kick);
-    MIDISequence B = generateRhythm(density, Instrument::snare);
-    MIDISequence C = generateRhythm(density, Instrument::hihat);
-    MIDISequence D = generateRhythm(density, Instrument::openhat);
+MIDISequence generateSequence(float density, float subDensity, float chaos) {
+    srand(time(0));
+
+    MIDISequence A = generateRhythm(Instrument::kick, density, subDensity, chaos);
+    MIDISequence B = generateRhythm(Instrument::snare, density, subDensity, chaos);
+    MIDISequence C = generateRhythm(Instrument::hihat, density, subDensity, chaos);
+    MIDISequence D = generateRhythm(Instrument::openhat, density, subDensity, chaos);
 
     A.append(B);
     A.append(C);
@@ -24,7 +26,8 @@ MIDISequence generateSequence(float density) {
     return A;
 }
 
-MIDISequence generateRhythm(float density, Instrument instr) {
+// subDensity and chaos aren't used right now
+MIDISequence generateRhythm(Instrument instr, float density, float subDensity, float chaos) {
     int division = std::ceil(randInt(1, 4) * density);
     division = 5 - division;
     int offset = randInt(0, division);
