@@ -28,7 +28,7 @@ void MIDISequence::addEvent(char t, Instrument instr) {
     events.push_back(event);
 }
 
-bool MIDISequence::writeToFile(std::string p) {
+std::string MIDISequence::writeToBuffer() {
     // Time Signature
     ByteString track = hexToByteString("00FF580404022401");
 
@@ -83,21 +83,29 @@ bool MIDISequence::writeToFile(std::string p) {
     track += deltaTime;
     track += hexToByteString("FF2F00"); // end of clip
 
-    // Open and write to file
-    std::ofstream f{p, std::ios::binary};
-    
-    f << "MThd";
-    writeByteString(f, hexToByteString("0000000600000001004"));
-    
-    f << "MTrk";
+    ByteString output = "MThd";
+    output += hexToByteString("0000000600000001004"); // file info
+    output += "MTrk";
 
     int ts = track.size();
     char dig1 = ts % 256;
     char dig2 = ts / 256;
     
     ByteString trackSize{0, 0, dig2, dig1};
-    writeByteString(f, trackSize);
-    writeByteString(f, track);
+
+    output += trackSize;
+    output += track;
+
+    return output;
+}
+
+bool MIDISequence::writeToFile(std::string p) {
+    
+    // Open file
+    std::ofstream f{p, std::ios::binary};
+    
+    ByteString output = this->writeToBuffer();
+    writeByteString(f, output);
 
     return true;
 }

@@ -30,6 +30,7 @@ public:
     void append(const MIDISequence&);
     void sort();
 
+    std::string writeToBuffer();
     bool writeToFile(std::string);
 
     std::string to_string() const;
