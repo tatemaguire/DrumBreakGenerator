@@ -3,14 +3,14 @@
 #include "../src/midi.hpp"
 
 int main(int argc, char* argv[]) {
-    if (argc < 4) {
+    if (argc < 3) {
         std::cout << "Usage: " << argv[0] << " <density> <subdensity> <chaos>" << std::endl;
         return 1;
     }
 
     float density = std::stof(argv[1]);
     float subDensity = std::stof(argv[2]);
-    float chaos = std::stof(argv[3]);
+    float chaos = 0; // TODO: implement chaos
 
 
     std::string outPath;

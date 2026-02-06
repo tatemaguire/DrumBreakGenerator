@@ -31,16 +31,19 @@ MIDISequence generateRhythm(Instrument instr, float density, float subDensity, f
     division = 5 - division;
     int offset = randInt(0, division);
 
+    int maxSubdiv = static_cast<int>(subDensity * 2 + 0.5);
+
     MIDISequence result{};
 
     for (int i = offset; i < get_seq_size(); i += division) {
         float roll = randInt(1, 10) / 10.0;
         if (roll < density) {
-            result.addNote(i*4, 4, instr);
-            // float subdiv = std::pow(2, randInt(0, 2));
-            // for (int j = 0; j < subdiv; j++) {
-            //     result.addEvent(i, instr);
-            // }
+            unsigned char subdiv = static_cast<unsigned char>(std::pow(2, randInt(0, randInt(0, maxSubdiv))));
+            unsigned char noteLen = 4 / subdiv;
+            std::cout << std::to_string(subdiv) << " " << std::to_string(noteLen) << std::endl;
+            for (int j = 0; j < 4; j += noteLen) {
+                result.addNote(i * 4 + j, noteLen, instr);
+            }
         }
     }
 
