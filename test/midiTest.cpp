@@ -5,13 +5,15 @@
 int main(int argc, char* argv[]) {
     MIDISequence A{};
 
-    A.addEvent(10, Instrument::kick);
-    A.addEvent(15, Instrument::kick);
-    A.addEvent(3, Instrument::snare);
-    A.addEvent(1, Instrument::snare);
-    A.addEvent(2, Instrument::snare);
+    const char step = 4;
+
+    A.addNote(10*step, step, Instrument::kick);
+    A.addNote(15*step, step, Instrument::kick);
+    A.addNote(3*step, step, Instrument::snare);
+    A.addNote(1*step, step, Instrument::snare);
+    A.addNote(2*step, step, Instrument::snare);
     for (int i = 0; i < 16; i++) {
-        A.addEvent(i, Instrument::hihat);
+        A.addNote(i*step, step, Instrument::hihat);
     }
 
     MIDISequence B{A};

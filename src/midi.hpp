@@ -6,12 +6,12 @@
 #include <vector>
 
 enum class Instrument {kick, snare, hihat, openhat};
-extern std::vector<std::string> INSTRUMENT_NAMES;
 
 class MIDISequence {
 public:
     struct Event {
-        char t; // step value 0-15
+        char t; // time in ticks
+        unsigned char message;
         Instrument instr;
     };
 
@@ -23,7 +23,8 @@ public:
     MIDISequence(MIDISequence&&) = default;
     MIDISequence& operator=(MIDISequence&&) = default;
 
-    void addEvent(char t, Instrument instr);
+    void addEvent(char t, unsigned char message, Instrument instr);
+    void addNote(char t, char len, Instrument instr);
 
     void append(const MIDISequence&);
     void sort();

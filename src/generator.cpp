@@ -19,7 +19,7 @@ MIDISequence generateSequence(float density, float subDensity, float chaos) {
     A.append(C);
     A.append(D);
 
-    if (A.events.size() == 0) A.addEvent(0, Instrument::snare);
+    if (A.events.size() == 0) A.addNote(0, 4, Instrument::snare);
 
     A.sort();
 
@@ -35,7 +35,13 @@ MIDISequence generateRhythm(Instrument instr, float density, float subDensity, f
 
     for (int i = offset; i < get_seq_size(); i += division) {
         float roll = randInt(1, 10) / 10.0;
-        if (roll < density) result.addEvent(i, instr);
+        if (roll < density) {
+            result.addNote(i*4, 4, instr);
+            // float subdiv = std::pow(2, randInt(0, 2));
+            // for (int j = 0; j < subdiv; j++) {
+            //     result.addEvent(i, instr);
+            // }
+        }
     }
 
     return result;
