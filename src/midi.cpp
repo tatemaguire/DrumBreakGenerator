@@ -103,10 +103,13 @@ bool MIDISequence::writeToFile(std::string p) {
 }
 
 std::string MIDISequence::to_string() const {
-    std::string result = "MIDISequence:\n";
-    for (const Event& ev : events) {
+    std::string result = "MIDISequence Length: " + std::to_string(this->events.size()) + "\n";
+    for (const Event& ev : this->events) {
         std::string instrName = INSTRUMENT_NAMES[static_cast<int>(ev.instr)];
-        result += "\tt: " + std::to_string(ev.t) + "\tinstr: " + instrName + "\n";
+        std::string msgName = (ev.message == NOTE_ON) ? "NOTE_ON" : "NOTE_OFF";
+        result += "\tt: " + std::to_string(ev.t);
+        result += "\tmsg: " + msgName;
+        result += "\tinstr: " + instrName + "\n";
     }
     return result;
 }
@@ -118,7 +121,13 @@ void MIDISequence::append(const MIDISequence& seq) {
 }
 
 void MIDISequence::sort() {
-    std::sort(events.begin(), events.end(), [](const Event& a, const Event& b) { return a.t < b.t; });
+    std::sort(events.begin(), events.end(), [](const Event& a, const Event& b) {
+        if (a.t != b.t) {
+            return a.t < b.t; 
+        } else {
+            return a.message == NOTE_OFF;
+        }
+    });
 }
 
 std::ostream& operator<<(std::ostream& os, const MIDISequence& seq) {
