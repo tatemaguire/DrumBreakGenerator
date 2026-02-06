@@ -26,7 +26,6 @@ MIDISequence generateSequence(float density, float subDensity, float chaos) {
     return A;
 }
 
-// subDensity and chaos aren't used right now
 MIDISequence generateRhythm(Instrument instr, float density, float subDensity, float chaos) {
     int division = std::ceil(randInt(1, 4) * density);
     division = 5 - division;
@@ -34,7 +33,7 @@ MIDISequence generateRhythm(Instrument instr, float density, float subDensity, f
 
     MIDISequence result{};
 
-    for (int i = offset; i < SEQ_SIZE; i += division) {
+    for (int i = offset; i < get_seq_size(); i += division) {
         float roll = randInt(1, 10) / 10.0;
         if (roll < density) result.addEvent(i, instr);
     }

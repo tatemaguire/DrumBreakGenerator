@@ -5,8 +5,6 @@
 #include <filesystem>
 #include <vector>
 
-const char SEQ_SIZE = 16;
-
 enum class Instrument {kick, snare, hihat, openhat};
 extern std::vector<std::string> INSTRUMENT_NAMES;
 
@@ -30,10 +28,12 @@ public:
     void append(const MIDISequence&);
     void sort();
 
-    std::string writeToBuffer();
+    std::basic_string<unsigned char> writeToBuffer();
     bool writeToFile(std::string);
 
     std::string to_string() const;
 };
 
+// temporary, while seq_size is constant
+const unsigned char get_seq_size();
 std::ostream& operator<<(std::ostream&, const MIDISequence&);

@@ -6,9 +6,15 @@
 
 #include "midi.hpp"
 
-typedef std::string ByteString;
-const char STEP_SIZE = 1;
+typedef std::basic_string<unsigned char> ByteString;
 std::vector<std::string> INSTRUMENT_NAMES = { "Kick", "Snare", "Closed Hi-hat", "Open Hi-hat" };
+
+const unsigned char STEP_SIZE = 4; // size of a 16th note
+const unsigned char NUM_STEPS = 16; // number of 16th notes
+
+const unsigned char get_seq_size() {
+    return NUM_STEPS;
+}
 
 // -----------------------------
 // Helper Function Declaration
@@ -28,7 +34,7 @@ void MIDISequence::addEvent(char t, Instrument instr) {
     events.push_back(event);
 }
 
-std::string MIDISequence::writeToBuffer() {
+std::basic_string<unsigned char> MIDISequence::writeToBuffer() {
     // Time Signature
     ByteString track = hexToByteString("00FF580404022401");
 
@@ -38,19 +44,19 @@ std::string MIDISequence::writeToBuffer() {
     sort();
     for (const Event& ev : events) {
 
-        char deltaTime = (ev.t - lastStep) * STEP_SIZE;
+        unsigned char deltaTime = (ev.t - lastStep) * STEP_SIZE;
         lastStep = ev.t;
 
         // if deltaTime is real, then note OFF!
         if (deltaTime > 0) {
-            char newDeltaTime = deltaTime - STEP_SIZE;
+            unsigned char newDeltaTime = deltaTime - STEP_SIZE;
             deltaTime = STEP_SIZE;
             if (currentEvents.empty()) newDeltaTime += STEP_SIZE;
             for (const Event& cev : currentEvents) {
                 track += deltaTime;
                 deltaTime = 0;
                 track += 0x80; // NOTE OFF
-                track += static_cast<char>(cev.instr)+36; // KEY
+                track += static_cast<unsigned char>(cev.instr)+36; // KEY
                 track += 0x64; // VEL
             }
             currentEvents.clear();
@@ -61,13 +67,13 @@ std::string MIDISequence::writeToBuffer() {
         track += deltaTime;
         deltaTime = 0;
         track += 0x90; // NOTE ON
-        track += static_cast<char>(ev.instr)+36; // KEY
+        track += static_cast<unsigned char>(ev.instr)+36; // KEY
         track += 0x64; // VEL
     }
 
-    char deltaTime = ((SEQ_SIZE-1) - lastStep) * STEP_SIZE;
+    unsigned char deltaTime = ((NUM_STEPS-1) - lastStep) * STEP_SIZE;
 
-    char newDeltaTime = deltaTime - STEP_SIZE;
+    unsigned char newDeltaTime = deltaTime - STEP_SIZE;
     deltaTime = STEP_SIZE;
     if (currentEvents.empty()) newDeltaTime += STEP_SIZE;
     for (const Event& cev : currentEvents) {
@@ -83,13 +89,13 @@ std::string MIDISequence::writeToBuffer() {
     track += deltaTime;
     track += hexToByteString("FF2F00"); // end of clip
 
-    ByteString output = "MThd";
-    output += hexToByteString("0000000600000001004"); // file info
-    output += "MTrk";
+    ByteString output = {'M', 'T', 'h', 'd'};
+    output += hexToByteString("00000006000000010010"); // file info TODO: put STEP_SIZE here instead of 0x10
+    output += {'M', 'T', 'r', 'k'};
 
     int ts = track.size();
-    char dig1 = ts % 256;
-    char dig2 = ts / 256;
+    unsigned char dig1 = ts % 256;
+    unsigned char dig2 = ts / 256;
     
     ByteString trackSize{0, 0, dig2, dig1};
 
