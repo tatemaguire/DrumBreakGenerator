@@ -10,6 +10,12 @@
 MIDISequence generateSequence(float density, float subDensity, float chaos) {
     srand(time(0));
 
+    if (density < 0.5) {
+        density *= 2;
+        density = std::pow(density, 0.5);
+        density /= 2;
+    }
+
     MIDISequence A = generateRhythm(Instrument::kick, density, subDensity, chaos);
     MIDISequence B = generateRhythm(Instrument::snare, density, subDensity, chaos);
     MIDISequence C = generateRhythm(Instrument::hihat, density, subDensity, chaos);
