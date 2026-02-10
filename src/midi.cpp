@@ -15,7 +15,6 @@ const std::map<size_t, std::string> instrument_names = {
     {36, "Kick"}, {37, "Snare"}, {38, "Closed Hi-hat"}, {39, "Open Hi-hat"} };
 
 const MIDISequence::MIDITick step_size = 4; // size of a 16th note
-const MIDISequence::MIDITick num_steps = 16; // number of 16th notes
 
 const MIDISequence::Byte note_on = 0x90;
 const MIDISequence::Byte note_off = 0x80;
@@ -26,16 +25,13 @@ const MIDISequence::ByteString time_signature = MIDISequence::hexToByteString("0
 const MIDISequence::ByteString header = MIDISequence::hexToByteString("4D546864000000060000000100104D54726B");
 const MIDISequence::ByteString track_end = MIDISequence::hexToByteString("FF2F00");
 
-// TODO: remove this fugly mess
-const MIDISequence::MIDITick get_seq_size() {
-    return num_steps;
-}
-
 // -----------------------------
 // MIDISequence Definitions
 // -----------------------------
 
 MIDISequence::MIDISequence(): events{} {};
+
+MIDISequence::MIDISequence(size_t num_steps): events{}, num_steps{num_steps} {};
 
 void MIDISequence::addEvent(MIDITick t, Byte message, Instrument instr) {
     MIDISequence::Event event{t, message, instr};
@@ -59,7 +55,8 @@ std::vector<MIDISequence::Byte> MIDISequence::writeToBuffer() {
         delta_tick = ev.t - current_tick;
         current_tick = ev.t;
 
-        track.push_back(delta_tick);
+        ByteString delta_tick_vlq = makeVariableLengthQuantity(delta_tick);
+        track.insert(track.end(), delta_tick_vlq.begin(), delta_tick_vlq.end());
         track.push_back(ev.message);
         track.push_back(static_cast<Byte>(ev.instr));
         track.push_back(default_velocity);
@@ -67,17 +64,17 @@ std::vector<MIDISequence::Byte> MIDISequence::writeToBuffer() {
 
     delta_tick = (step_size * num_steps) - current_tick;
 
-    track.push_back(delta_tick);
+    ByteString delta_tick_vlq = makeVariableLengthQuantity(delta_tick);
+    track.insert(track.end(), delta_tick_vlq.begin(), delta_tick_vlq.end());
+
     track.insert(track.end(), track_end.begin(), track_end.end());
 
     ByteString output = header;
+    ByteString track_size = makeVariableLengthQuantity(track.size());
 
-    // TODO: make a better way of making variable length quantity
-    size_t ts = track.size();
-    Byte dig1 = ts % 256;
-    Byte dig2 = ts / 256;
-
-    ByteString track_size{0, 0, dig2, dig1};
+    while (track_size.size() < 4) {
+        track_size.insert(track_size.begin(), 0);
+    }
 
     output.insert(output.end(), track_size.begin(), track_size.end());
     output.insert(output.end(), track.begin(), track.end());
@@ -150,5 +147,6 @@ MIDISequence::ByteString MIDISequence::makeVariableLengthQuantity(MIDITick val) 
         vlq.insert(vlq.begin(), (val & 0x7F));
         val >>= 7;
     }
+    if (vlq.size() == 0) vlq.push_back(0);
     return vlq;
 }

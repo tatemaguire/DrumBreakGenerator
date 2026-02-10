@@ -21,8 +21,10 @@ public:
     };
 
     std::vector<Event> events;
+    size_t num_steps = 16;
 
     MIDISequence();
+    MIDISequence(size_t num_steps);
     MIDISequence(const MIDISequence&) = default;
     MIDISequence& operator=(const MIDISequence&) = default;
     MIDISequence(MIDISequence&&) = default;
@@ -46,6 +48,4 @@ public:
     static ByteString makeVariableLengthQuantity(MIDITick val);
 };
 
-// temporary, while seq_size is constant
-const uint32_t get_seq_size();
 std::ostream& operator<<(std::ostream&, const MIDISequence&);

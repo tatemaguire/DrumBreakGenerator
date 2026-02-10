@@ -3,14 +3,14 @@
 #include "../src/midi.hpp"
 
 int main(int argc, char* argv[]) {
-    if (argc < 3) {
-        std::cout << "Usage: " << argv[0] << " <density> <subdensity> <chaos>" << std::endl;
+    if (argc < 4) {
+        std::cout << "Usage: " << argv[0] << " <num steps> <density> <subdensity>" << std::endl;
         return 1;
     }
 
-    float density = std::stof(argv[1]);
-    float subDensity = std::stof(argv[2]);
-    float chaos = 0; // TODO: implement chaos
+    float num_steps = std::stoi(argv[1]);
+    float density = std::stof(argv[2]);
+    float subDensity = std::stof(argv[3]);
 
 
     std::string outPath;
@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
     srand(time(0));
     
     // generation
-    MIDISequence seq = generateSequence(density, subDensity, chaos);
+    MIDISequence seq = generateSequence(num_steps, density, subDensity);
     
     std::cout << seq << std::endl;
 
