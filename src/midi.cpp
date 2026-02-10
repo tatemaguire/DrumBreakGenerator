@@ -1,41 +1,34 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <map>
 #include <filesystem>
 #include <string>
 
 #include "midi.hpp"
 
 // -----------------------------
-// Helper Declarations
-// -----------------------------
-
-typedef std::vector<unsigned char> ByteString;
-
-ByteString hexToByteString(const std::string& hex);
-void writeByteString(std::ofstream& f, ByteString bs);
-
-// -----------------------------
 // Constants
 // -----------------------------
 
-const std::vector<std::string> INSTRUMENT_NAMES = { "Kick", "Snare", "Closed Hi-hat", "Open Hi-hat" };
+const std::map<size_t, std::string> instrument_names = {
+    {36, "Kick"}, {37, "Snare"}, {38, "Closed Hi-hat"}, {39, "Open Hi-hat"} };
 
-const size_t STEP_SIZE = 4; // size of a 16th note
-const size_t NUM_STEPS = 16; // number of 16th notes
+const MIDISequence::MIDITick step_size = 4; // size of a 16th note
+const MIDISequence::MIDITick num_steps = 16; // number of 16th notes
 
-const unsigned char NOTE_ON = 0x90;
-const unsigned char NOTE_OFF = 0x80;
-const unsigned char DEFAULT_VELOCITY = 0x64;
+const MIDISequence::Byte note_on = 0x90;
+const MIDISequence::Byte note_off = 0x80;
+const MIDISequence::Byte default_velocity = 0x64;
 
-const ByteString TIME_SIGNATURE = hexToByteString("00FF580404022401");
-// TODO: make HEADER include STEP_SIZE info, rn it's hardcoded at qnote = 16 ticks
-const ByteString HEADER = hexToByteString("4D546864000000060000000100104D54726B");
-const ByteString TRACK_END = hexToByteString("FF2F00");
+const MIDISequence::ByteString time_signature = MIDISequence::hexToByteString("00FF580404022401");
+// TODO: make header include step_size info, rn it's hardcoded at qnote = 16 ticks
+const MIDISequence::ByteString header = MIDISequence::hexToByteString("4D546864000000060000000100104D54726B");
+const MIDISequence::ByteString track_end = MIDISequence::hexToByteString("FF2F00");
 
 // TODO: remove this fugly mess
-const unsigned char get_seq_size() {
-    return NUM_STEPS;
+const MIDISequence::MIDITick get_seq_size() {
+    return num_steps;
 }
 
 // -----------------------------
@@ -44,49 +37,49 @@ const unsigned char get_seq_size() {
 
 MIDISequence::MIDISequence(): events{} {};
 
-void MIDISequence::addEvent(char t, unsigned char message, Instrument instr) {
+void MIDISequence::addEvent(MIDITick t, Byte message, Instrument instr) {
     MIDISequence::Event event{t, message, instr};
     events.push_back(event);
 }
 
-void MIDISequence::addNote(char t, char len, Instrument instr) {
-    this->addEvent(t, NOTE_ON, instr);
-    this->addEvent(t+len, NOTE_OFF, instr);
+void MIDISequence::addNote(MIDITick t, MIDITick len, Instrument instr) {
+    this->addEvent(t, note_on, instr);
+    this->addEvent(t+len, note_off, instr);
 }
 
-std::vector<unsigned char> MIDISequence::writeToBuffer() {
-    ByteString track = TIME_SIGNATURE;
+std::vector<MIDISequence::Byte> MIDISequence::writeToBuffer() {
+    ByteString track = time_signature;
 
     this->sort();
 
-    size_t currentTick = 0;
-    size_t deltaTick = 0;
+    MIDITick current_tick = 0;
+    MIDITick delta_tick = 0;
 
     for (const Event& ev : this->events) {
-        deltaTick = ev.t - currentTick;
-        currentTick = ev.t;
+        delta_tick = ev.t - current_tick;
+        current_tick = ev.t;
 
-        track.push_back(deltaTick);
+        track.push_back(delta_tick);
         track.push_back(ev.message);
-        track.push_back(static_cast<unsigned char>(ev.instr)+36);
-        track.push_back(DEFAULT_VELOCITY);
+        track.push_back(static_cast<Byte>(ev.instr));
+        track.push_back(default_velocity);
     }
 
-    deltaTick = (STEP_SIZE * NUM_STEPS) - currentTick;
+    delta_tick = (step_size * num_steps) - current_tick;
 
-    track.push_back(deltaTick);
-    track.insert(track.end(), TRACK_END.begin(), TRACK_END.end());
+    track.push_back(delta_tick);
+    track.insert(track.end(), track_end.begin(), track_end.end());
 
-    ByteString output = HEADER;
+    ByteString output = header;
 
     // TODO: make a better way of making variable length quantity
     size_t ts = track.size();
-    unsigned char dig1 = ts % 256;
-    unsigned char dig2 = ts / 256;
+    Byte dig1 = ts % 256;
+    Byte dig2 = ts / 256;
 
-    ByteString trackSize{0, 0, dig2, dig1};
+    ByteString track_size{0, 0, dig2, dig1};
 
-    output.insert(output.end(), trackSize.begin(), trackSize.end());
+    output.insert(output.end(), track_size.begin(), track_size.end());
     output.insert(output.end(), track.begin(), track.end());
 
     return output;
@@ -105,11 +98,11 @@ bool MIDISequence::writeToFile(std::string p) {
 std::string MIDISequence::to_string() const {
     std::string result = "MIDISequence Length: " + std::to_string(this->events.size()) + "\n";
     for (const Event& ev : this->events) {
-        std::string instrName = INSTRUMENT_NAMES[static_cast<int>(ev.instr)];
-        std::string msgName = (ev.message == NOTE_ON) ? "NOTE_ON" : "NOTE_OFF";
+        std::string instr_name = instrument_names.at(static_cast<size_t>(ev.instr));
+        std::string message_name = (ev.message == note_on) ? "note_on" : "note_off";
         result += "\tt: " + std::to_string(ev.t);
-        result += "\tmsg: " + msgName;
-        result += "\tinstr: " + instrName + "\n";
+        result += "\tmsg: " + message_name;
+        result += "\tinstr: " + instr_name + "\n";
     }
     return result;
 }
@@ -125,7 +118,7 @@ void MIDISequence::sort() {
         if (a.t != b.t) {
             return a.t < b.t; 
         } else {
-            return a.message == NOTE_OFF;
+            return a.message == note_off;
         }
     });
 }
@@ -138,15 +131,19 @@ std::ostream& operator<<(std::ostream& os, const MIDISequence& seq) {
 // Helper Definitions
 // -----------------------------
 
-ByteString hexToByteString(const std::string& hex) {
+MIDISequence::ByteString MIDISequence::hexToByteString(const std::string& hex) {
     ByteString bs{};
     for (size_t i = 0; i < hex.length(); i += 2) {
-        unsigned char byte = std::stoi(hex.substr(i, 2), 0, 16);
+        uint8_t byte = std::stoi(hex.substr(i, 2), 0, 16);
         bs.push_back(byte);
     }
     return bs;
 }
 
-void writeByteString(std::ofstream& f, ByteString bs) {
+void MIDISequence::writeByteString(std::ofstream& f, ByteString bs) {
     f.write(reinterpret_cast<const char*>(bs.data()), bs.size());
+}
+
+MIDISequence::ByteString MIDISequence::makeVariableLengthQuantity(MIDITick val) {
+
 }

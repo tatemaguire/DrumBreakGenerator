@@ -5,13 +5,18 @@
 #include <filesystem>
 #include <vector>
 
-enum class Instrument {kick, snare, hihat, openhat};
+enum class Instrument {kick = 36, snare = 37, hihat = 38, openhat = 39};
 
 class MIDISequence {
 public:
+
+    typedef uint32_t MIDITick;
+    typedef uint8_t Byte;
+    typedef std::vector<MIDISequence::Byte> ByteString;
+
     struct Event {
-        char t; // time in ticks
-        unsigned char message;
+        MIDITick t; // time in ticks
+        Byte message;
         Instrument instr;
     };
 
@@ -23,18 +28,24 @@ public:
     MIDISequence(MIDISequence&&) = default;
     MIDISequence& operator=(MIDISequence&&) = default;
 
-    void addEvent(char t, unsigned char message, Instrument instr);
-    void addNote(char t, char len, Instrument instr);
+    void addEvent(MIDITick t, Byte message, Instrument instr);
+    void addNote(MIDITick t, MIDITick len, Instrument instr);
 
     void append(const MIDISequence&);
     void sort();
 
-    std::vector<unsigned char> writeToBuffer();
+    std::vector<Byte> writeToBuffer();
     bool writeToFile(std::string);
 
     std::string to_string() const;
+
+
+    // HELPER FUNCTIONS
+    static ByteString hexToByteString(const std::string& hex);
+    static void writeByteString(std::ofstream& f, ByteString bs);
+    static ByteString makeVariableLengthQuantity(MIDITick val);
 };
 
 // temporary, while seq_size is constant
-const unsigned char get_seq_size();
+const uint32_t get_seq_size();
 std::ostream& operator<<(std::ostream&, const MIDISequence&);
