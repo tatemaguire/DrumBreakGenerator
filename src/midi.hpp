@@ -29,7 +29,7 @@ public:
     void append(const MIDISequence&);
     void sort();
 
-    std::basic_string<unsigned char> writeToBuffer();
+    std::vector<unsigned char> writeToBuffer();
     bool writeToFile(std::string);
 
     std::string to_string() const;

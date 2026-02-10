@@ -10,7 +10,7 @@
 // Helper Declarations
 // -----------------------------
 
-typedef std::basic_string<unsigned char> ByteString;
+typedef std::vector<unsigned char> ByteString;
 
 ByteString hexToByteString(const std::string& hex);
 void writeByteString(std::ofstream& f, ByteString bs);
@@ -21,8 +21,8 @@ void writeByteString(std::ofstream& f, ByteString bs);
 
 const std::vector<std::string> INSTRUMENT_NAMES = { "Kick", "Snare", "Closed Hi-hat", "Open Hi-hat" };
 
-const unsigned char STEP_SIZE = 4; // size of a 16th note
-const unsigned char NUM_STEPS = 16; // number of 16th notes
+const size_t STEP_SIZE = 4; // size of a 16th note
+const size_t NUM_STEPS = 16; // number of 16th notes
 
 const unsigned char NOTE_ON = 0x90;
 const unsigned char NOTE_OFF = 0x80;
@@ -54,28 +54,28 @@ void MIDISequence::addNote(char t, char len, Instrument instr) {
     this->addEvent(t+len, NOTE_OFF, instr);
 }
 
-std::basic_string<unsigned char> MIDISequence::writeToBuffer() {
+std::vector<unsigned char> MIDISequence::writeToBuffer() {
     ByteString track = TIME_SIGNATURE;
 
     this->sort();
 
-    unsigned char currentTick = 0;
-    unsigned char deltaTick = 0;
+    size_t currentTick = 0;
+    size_t deltaTick = 0;
 
     for (const Event& ev : this->events) {
         deltaTick = ev.t - currentTick;
         currentTick = ev.t;
 
-        track += deltaTick;
-        track += ev.message;
-        track += static_cast<char>(ev.instr)+36;
-        track += DEFAULT_VELOCITY;
+        track.push_back(deltaTick);
+        track.push_back(ev.message);
+        track.push_back(static_cast<unsigned char>(ev.instr)+36);
+        track.push_back(DEFAULT_VELOCITY);
     }
 
     deltaTick = (STEP_SIZE * NUM_STEPS) - currentTick;
 
-    track += deltaTick;
-    track += TRACK_END;
+    track.push_back(deltaTick);
+    track.insert(track.end(), TRACK_END.begin(), TRACK_END.end());
 
     ByteString output = HEADER;
 
@@ -86,8 +86,8 @@ std::basic_string<unsigned char> MIDISequence::writeToBuffer() {
 
     ByteString trackSize{0, 0, dig2, dig1};
 
-    output += trackSize;
-    output += track;
+    output.insert(output.end(), trackSize.begin(), trackSize.end());
+    output.insert(output.end(), track.begin(), track.end());
 
     return output;
 }
@@ -141,7 +141,7 @@ std::ostream& operator<<(std::ostream& os, const MIDISequence& seq) {
 ByteString hexToByteString(const std::string& hex) {
     ByteString bs{};
     for (size_t i = 0; i < hex.length(); i += 2) {
-        char byte = std::stoi(hex.substr(i, 2), 0, 16);
+        unsigned char byte = std::stoi(hex.substr(i, 2), 0, 16);
         bs.push_back(byte);
     }
     return bs;
