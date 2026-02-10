@@ -25,5 +25,12 @@ int main(int argc, char* argv[]) {
 
     A.writeToFile("out.mid");
 
+    // VLQ test
+    MIDISequence::ByteString fourndred = MIDISequence::makeVariableLengthQuantity(40090);
+
+    for (int i = 0; i < fourndred.size(); i++) {
+        std::cout << static_cast<int>(fourndred[i]) << " "; // should be 2 57 26
+    }
+
     return 0;
 }

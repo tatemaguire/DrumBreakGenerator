@@ -145,5 +145,10 @@ void MIDISequence::writeByteString(std::ofstream& f, ByteString bs) {
 }
 
 MIDISequence::ByteString MIDISequence::makeVariableLengthQuantity(MIDITick val) {
-
+    ByteString vlq = {};
+    while (val != 0) {
+        vlq.insert(vlq.begin(), (val & 0x7F));
+        val >>= 7;
+    }
+    return vlq;
 }
