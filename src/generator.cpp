@@ -7,19 +7,13 @@
 #include "midi.hpp"
 #include "generator.hpp"
 
-MIDISequence generateSequence(size_t num_steps, float density, float subDensity) {
+MIDISequence generateSequence(size_t num_steps, std::vector<InstrumentConfig> configs) {
     srand(time(0));
 
-    if (density < 0.5) {
-        density *= 2;
-        density = std::pow(density, 0.5);
-        density /= 2;
-    }
-
-    MIDISequence A = generateRhythm(num_steps, Instrument::kick, density, subDensity);
-    MIDISequence B = generateRhythm(num_steps, Instrument::snare, density, subDensity);
-    MIDISequence C = generateRhythm(num_steps, Instrument::hihat, density, subDensity);
-    MIDISequence D = generateRhythm(num_steps, Instrument::openhat, density, subDensity);
+    MIDISequence A = generateRhythm(num_steps, configs[0]);
+    MIDISequence B = generateRhythm(num_steps, configs[1]);
+    MIDISequence C = generateRhythm(num_steps, configs[2]);
+    MIDISequence D = generateRhythm(num_steps, configs[3]);
 
     A.append(B);
     A.append(C);
@@ -32,19 +26,29 @@ MIDISequence generateSequence(size_t num_steps, float density, float subDensity)
     return A;
 }
 
-MIDISequence generateRhythm(size_t num_steps, Instrument instr, float density, float subDensity) {
+MIDISequence generateRhythm(size_t num_steps, InstrumentConfig config) {
+    Instrument instr = config.instrument;
+    float density = config.density;
+    float sub_density = config.sub_density;
+
+    if (density < 0.5) {
+        density *= 2;
+        density = std::pow(density, 0.5);
+        density /= 2;
+    }
+
     int division = std::ceil(randInt(1, 4) * density);
     division = 5 - division;
     int offset = randInt(0, division);
 
-    int maxSubdiv = static_cast<int>(subDensity * 2 + 0.5);
+    int max_subdiv = static_cast<int>(sub_density * 2 + 0.5);
 
     MIDISequence result{num_steps};
 
     for (int i = offset; i < num_steps; i += division) {
         float roll = randInt(1, 10) / 10.0;
         if (roll < density) {
-            unsigned char subdiv = static_cast<unsigned char>(std::pow(2, randInt(0, randInt(0, maxSubdiv))));
+            unsigned char subdiv = static_cast<unsigned char>(std::pow(2, randInt(0, randInt(0, max_subdiv))));
             unsigned char noteLen = 4 / subdiv;
             for (int j = 0; j < 4; j += noteLen) {
                 result.addNote(i * 4 + j, noteLen, instr);

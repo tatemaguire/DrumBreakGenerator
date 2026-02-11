@@ -2,6 +2,12 @@
 
 #include "midi.hpp"
 
-MIDISequence generateSequence(size_t num_steps, float density, float subDensity);
-MIDISequence generateRhythm(size_t num_steps, Instrument instr, float density, float subDensity);
+struct InstrumentConfig {
+    Instrument instrument;
+    float density;
+    float sub_density;
+};
+
+MIDISequence generateSequence(size_t num_steps, std::vector<InstrumentConfig> config);
+MIDISequence generateRhythm(size_t num_steps, InstrumentConfig config);
 int randInt(int min, int max);
