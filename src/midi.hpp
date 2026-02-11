@@ -20,6 +20,8 @@ public:
         Instrument instr;
     };
 
+    static const MIDITick step_size = 4; // size of a 16th note
+
     std::vector<Event> events;
     size_t num_steps = 16;
 

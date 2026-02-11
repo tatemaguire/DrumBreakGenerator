@@ -9,5 +9,3 @@ struct InstrumentConfig {
 };
 
 MIDISequence generateSequence(size_t num_steps, std::vector<InstrumentConfig> config);
-MIDISequence generateRhythm(size_t num_steps, InstrumentConfig config);
-int randInt(int min, int max);

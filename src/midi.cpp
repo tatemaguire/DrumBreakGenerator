@@ -14,8 +14,6 @@
 const std::map<size_t, std::string> instrument_names = {
     {36, "Kick"}, {37, "Snare"}, {38, "Closed Hi-hat"}, {39, "Open Hi-hat"} };
 
-const MIDISequence::MIDITick step_size = 4; // size of a 16th note
-
 const MIDISequence::Byte note_on = 0x90;
 const MIDISequence::Byte note_off = 0x80;
 const MIDISequence::Byte default_velocity = 0x64;
