@@ -1,6 +1,4 @@
 #include <iostream>
-#include <ctime> //TEMP
-#include <cstdlib> //TEMP
 #include "../src/generator.hpp"
 #include "../src/midi.hpp"
 
@@ -77,7 +75,6 @@ int makeBatch(int argc, char* argv[]) {
         std::cout << "Usage: " << argv[0] << " <num steps>" << std::endl;
         return 1;
     }
-    srand(time(0));
 
     int num_steps = std::stoi(argv[1]);
 
@@ -85,12 +82,14 @@ int makeBatch(int argc, char* argv[]) {
     std::string file_extension = ".mid";
     int file_ID = 0;
 
+    DrumBreakGenerator generator = {};
+
     for (int i = 0; i <= 10; i++) {
         float density = 0.1 * i;
 
         if (std::abs(density - 1) < 0.05) density = 1;
         std::cout << density << std::endl;
-        MIDISequence seq = generateSequence(num_steps, debugConfigs(density, 0));
+        MIDISequence seq = generator.generateSequence(num_steps, debugConfigs(density, 0));
         seq.writeToFile(out_name + std::to_string(file_ID++) + file_extension);
     }
 
@@ -99,7 +98,7 @@ int makeBatch(int argc, char* argv[]) {
 
 int main(int argc, char* argv[]) {
 
-    return makeBatch(argc, argv);
+    // return makeBatch(argc, argv);
 
     if (argc < 4) {
         std::cout << "Usage: " << argv[0] << " <num steps> [<density_1> <subdensity_1>] [<density_2> <subdensity_2>] ..." << std::endl;
@@ -111,7 +110,9 @@ int main(int argc, char* argv[]) {
     std::vector<InstrumentConfig> configs = parseArgsToConfigs(argc, argv);
 
     // generation
-    MIDISequence seq = generateSequence(num_steps, configs);
+    DrumBreakGenerator generator = {1886653960};
+    std::cout << "Seed: " << generator.seed << std::endl;
+    MIDISequence seq = generator.generateSequence(num_steps, configs);
     
     // print results
     std::cout << seq << std::endl;

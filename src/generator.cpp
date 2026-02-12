@@ -1,22 +1,29 @@
 #include <iostream>
-#include <cstdlib>
-#include <ctime>
 #include <cmath>
 #include <string>
 #include <map>
+#include <random>
 
 #include "midi.hpp"
 #include "generator.hpp"
 
+DrumBreakGenerator::DrumBreakGenerator() {
+    std::random_device rd;
+    this->seed = rd();
+    this->re.seed(this->seed);
+}
+
+DrumBreakGenerator::DrumBreakGenerator(std::default_random_engine::result_type seed):
+    seed{seed}, re{seed} {};
+
 // inclusive min and max
-int randInt(int min, int max) {
-    max++;
-    int num = rand() % (max-min);
-    return num + min;
+int DrumBreakGenerator::randInt(int min, int max) {
+    std::uniform_int_distribution<int> dist{min, max};
+    return dist(this->re);
 }
 
 // first int is the result, second int is the number of spots in the total pool
-int randIntWeighted(std::map<int, int> probabilities) {
+int DrumBreakGenerator::randIntWeighted(std::map<int, int> probabilities) {
     int total_pool = 0;
     for (auto entry : probabilities) {
         total_pool += entry.second;
@@ -46,17 +53,13 @@ int randIntWeighted(std::map<int, int> probabilities) {
     return result;
 }
 
+// min and max are inclusive
 // param is 0 - 1, center is 0 - 1
 // when param == center, you have the highest probability
 // returns 0 - 1, resulting probability
-float probFromCenter(float param, float center) {
-    return 1 - std::abs(center - param);
-}
-
-// TODO: min and max inclusive or exclusive?
-float parameterToProbability(float param, float min, float max, float center) {
+float DrumBreakGenerator::parameterToProbability(float param, float min, float max, float center) {
     if (param >= min && param <= max) {
-        return probFromCenter(param, center);
+        return 1 - std::abs(center - param);
     } else {
         return 0;
     }
@@ -64,7 +67,7 @@ float parameterToProbability(float param, float min, float max, float center) {
 
 // generate one instrument's rhythm and put it in a MIDISequence
 // external offset is based on other rhythms previously generated, it is also modified for the next rhythm
-MIDISequence generateRhythm(size_t num_steps, InstrumentConfig config, size_t& offset) {
+MIDISequence DrumBreakGenerator::generateRhythm(size_t num_steps, InstrumentConfig config, size_t& offset) {
     offset += randIntWeighted({{0, 1}, {1, 5}, {2, 2}, {3, 1}});
     offset %= 4; // loop offset from 0-3
 
@@ -97,7 +100,7 @@ MIDISequence generateRhythm(size_t num_steps, InstrumentConfig config, size_t& o
 }
 
 // generate the entire MIDISequence based on arguments
-MIDISequence generateSequence(size_t num_steps, std::vector<InstrumentConfig> configs) {
+MIDISequence DrumBreakGenerator::generateSequence(size_t num_steps, std::vector<InstrumentConfig> configs) {
     // Check for domain errors
     if (num_steps <= 0) {
         throw std::domain_error("Generator: generateSequence(): num_steps must be > 0");
