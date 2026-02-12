@@ -72,28 +72,39 @@ MIDISequence DrumBreakGenerator::generateRhythm(size_t num_steps, InstrumentConf
     offset %= 4; // loop offset from 0-3
 
     std::map<int, int> gap_probabilities = {};
-    gap_probabilities[1] = parameterToProbability(config.density, 0.75, 1, 1) * 2;
-    gap_probabilities[2] = parameterToProbability(config.density, 0.7, 1, 0.9) * 5;
-    gap_probabilities[3] = parameterToProbability(config.density, 0.6, 1, 0.8) * 5;
-    gap_probabilities[4] = parameterToProbability(config.density, 0.4, 0.7, 0.55) * 8;
-    gap_probabilities[5] = parameterToProbability(config.density, 0.3, 0.5, 0.4) * 4;
-    gap_probabilities[6] = parameterToProbability(config.density, 0.1, 0.4, 0.25) * 5;
-    gap_probabilities[7] = parameterToProbability(config.density, 0.1, 0.3, 0.15) * 3;
-    gap_probabilities[8] = parameterToProbability(config.density, 0.05, 0.2, 0.1) * 3;
-    gap_probabilities[9] = parameterToProbability(config.density, 0, 0.2, 0.1) * 3;
-    gap_probabilities[10] = parameterToProbability(config.density, 0, 0.2, 0.1) * 3;
-    gap_probabilities[11] = parameterToProbability(config.density, 0, 0.2, 0) * 3;
-    gap_probabilities[12] = parameterToProbability(config.density, 0, 0.1, 0) * 3;
-    gap_probabilities[13] = parameterToProbability(config.density, 0, 0.1, 0) * 4;
-    gap_probabilities[14] = parameterToProbability(config.density, 0, 0.1, 0) * 4;
+    gap_probabilities[1] = parameterToProbability(config.density, 0.75, 1, 1) * 20;
+    gap_probabilities[2] = parameterToProbability(config.density, 0.7, 1, 0.9) * 50;
+    gap_probabilities[3] = parameterToProbability(config.density, 0.6, 1, 0.8) * 50;
+    gap_probabilities[4] = parameterToProbability(config.density, 0.4, 0.7, 0.55) * 80;
+    gap_probabilities[5] = parameterToProbability(config.density, 0.3, 0.5, 0.4) * 40;
+    gap_probabilities[6] = parameterToProbability(config.density, 0.1, 0.4, 0.25) * 50;
+    gap_probabilities[7] = parameterToProbability(config.density, 0.1, 0.3, 0.15) * 30;
+    gap_probabilities[8] = parameterToProbability(config.density, 0.05, 0.2, 0.1) * 30;
+    gap_probabilities[9] = parameterToProbability(config.density, 0, 0.2, 0.1) * 30;
+    gap_probabilities[10] = parameterToProbability(config.density, 0, 0.2, 0.1) * 30;
+    gap_probabilities[11] = parameterToProbability(config.density, 0, 0.2, 0) * 30;
+    gap_probabilities[12] = parameterToProbability(config.density, 0, 0.1, 0) * 30;
+    gap_probabilities[13] = parameterToProbability(config.density, 0, 0.1, 0) * 40;
+    gap_probabilities[14] = parameterToProbability(config.density, 0, 0.1, 0) * 40;
 
     size_t gap = randIntWeighted(gap_probabilities);
+
+    std::map<int, int> subdiv_probabilities = {};
+    subdiv_probabilities[1] = parameterToProbability(config.sub_density, 0, 1, 0) * 100;
+    subdiv_probabilities[2] = parameterToProbability(config.sub_density, 0, 1, 1) * 20;
+    subdiv_probabilities[3] = parameterToProbability(config.sub_density, 0.5, 1, 1) * 5;
 
     MIDISequence rhythm = MIDISequence(num_steps);
 
     for (size_t step = offset; step < num_steps; step += gap) {
         if (randInt(1, 5) == 1) continue; // note skips 
-        rhythm.addNote(step * rhythm.step_size, rhythm.step_size, config.instrument);
+
+        // generate subdivision
+        int subdiv = randIntWeighted(subdiv_probabilities);
+        int noteLen = rhythm.step_size / subdiv;
+        for (int j = 0; j < rhythm.step_size; j += noteLen) {
+            rhythm.addNote(step * rhythm.step_size + j, noteLen, config.instrument);
+        }
     }
 
     return rhythm;
@@ -114,9 +125,6 @@ MIDISequence DrumBreakGenerator::generateSequence(size_t num_steps, std::vector<
             throw std::domain_error("Generator: generateSequence(): subdensity_" + std::to_string(i) + " must be > 0 and < 1");
         }
     }
-
-    // Seed generation
-    // srand(time(0));
 
     size_t offset = randInt(0, 3);
 

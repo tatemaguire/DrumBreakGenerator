@@ -98,7 +98,9 @@ int makeBatch(int argc, char* argv[]) {
 
 int main(int argc, char* argv[]) {
 
-    // return makeBatch(argc, argv);
+    if (argc == 2) {
+        return makeBatch(argc, argv);
+    }
 
     if (argc < 4) {
         std::cout << "Usage: " << argv[0] << " <num steps> [<density_1> <subdensity_1>] [<density_2> <subdensity_2>] ..." << std::endl;
@@ -110,7 +112,7 @@ int main(int argc, char* argv[]) {
     std::vector<InstrumentConfig> configs = parseArgsToConfigs(argc, argv);
 
     // generation
-    DrumBreakGenerator generator = {1886653960};
+    DrumBreakGenerator generator = {};
     std::cout << "Seed: " << generator.seed << std::endl;
     MIDISequence seq = generator.generateSequence(num_steps, configs);
     
