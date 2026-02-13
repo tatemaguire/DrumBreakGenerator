@@ -5,8 +5,6 @@
 #include <filesystem>
 #include <vector>
 
-enum class Instrument {kick = 36, snare = 37, hihat = 38, openhat = 39};
-
 class MIDISequence {
 public:
 
@@ -17,7 +15,7 @@ public:
     struct Event {
         MIDITick t; // time in ticks
         Byte message;
-        Instrument instr;
+        Byte instr;
     };
 
     static const MIDITick step_size = 4; // size of a 16th note
@@ -32,8 +30,8 @@ public:
     MIDISequence(MIDISequence&&) = default;
     MIDISequence& operator=(MIDISequence&&) = default;
 
-    void addEvent(MIDITick t, Byte message, Instrument instr);
-    void addNote(MIDITick t, MIDITick len, Instrument instr);
+    void addEvent(MIDITick t, Byte message, Byte instr);
+    void addNote(MIDITick t, MIDITick len, Byte instr);
 
     void append(const MIDISequence&);
     void sort();

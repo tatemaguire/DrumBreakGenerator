@@ -11,7 +11,7 @@
 // Constants
 // -----------------------------
 
-const std::map<size_t, std::string> instrument_names = {
+const std::map<MIDISequence::Byte, std::string> instrument_names = {
     {36, "Kick"}, {37, "Snare"}, {38, "Closed Hi-hat"}, {39, "Open Hi-hat"} };
 
 const MIDISequence::Byte note_on = 0x90;
@@ -31,12 +31,12 @@ MIDISequence::MIDISequence(): events{} {};
 
 MIDISequence::MIDISequence(size_t num_steps): events{}, num_steps{num_steps} {};
 
-void MIDISequence::addEvent(MIDITick t, Byte message, Instrument instr) {
+void MIDISequence::addEvent(MIDITick t, Byte message, Byte instr) {
     MIDISequence::Event event{t, message, instr};
     events.push_back(event);
 }
 
-void MIDISequence::addNote(MIDITick t, MIDITick len, Instrument instr) {
+void MIDISequence::addNote(MIDITick t, MIDITick len, Byte instr) {
     this->addEvent(t, note_on, instr);
     this->addEvent(t+len, note_off, instr);
 }
@@ -56,7 +56,7 @@ std::vector<MIDISequence::Byte> MIDISequence::writeToBuffer() {
         ByteString delta_tick_vlq = makeVariableLengthQuantity(delta_tick);
         track.insert(track.end(), delta_tick_vlq.begin(), delta_tick_vlq.end());
         track.push_back(ev.message);
-        track.push_back(static_cast<Byte>(ev.instr));
+        track.push_back(ev.instr);
         track.push_back(default_velocity);
     }
 
@@ -93,7 +93,7 @@ bool MIDISequence::writeToFile(std::string p) {
 std::string MIDISequence::to_string() const {
     std::string result = "MIDISequence Length: " + std::to_string(this->events.size()) + "\n";
     for (const Event& ev : this->events) {
-        std::string instr_name = instrument_names.at(static_cast<size_t>(ev.instr));
+        std::string instr_name = instrument_names.at(ev.instr);
         std::string message_name = (ev.message == note_on) ? "note_on" : "note_off";
         result += "\tt: " + std::to_string(ev.t);
         result += "\tmsg: " + message_name;

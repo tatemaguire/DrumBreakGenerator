@@ -10,20 +10,20 @@ std::vector<InstrumentConfig> parseArgsToConfigs(int argc, char* argv[]) {
 
     for (int i = 2; i < argc; i += 2) {
         // choose instrument based on argument number in this order: kick, snare, hihat, openhat
-        Instrument instr;
+        MIDISequence::Byte instr;
         switch (i)
         {
-            case 2:
-                instr = Instrument::kick;
+            case 0:
+                instr = 36;
                 break;
-            case 4:
-                instr = Instrument::snare;
+            case 1:
+                instr = 37;
                 break;
-            case 6: 
-                instr = Instrument::hihat;
+            case 2: 
+                instr = 38;
                 break;
-            case 8:
-                instr = Instrument::openhat;
+            case 3:
+                instr = 39;
                 break;
             default:
                 throw std::domain_error("Instrument" + std::to_string((i-2)/2) + " is not defined");
@@ -44,20 +44,20 @@ std::vector<InstrumentConfig> debugConfigs(float density, float sub_density) {
     std::vector<InstrumentConfig> configs = {};
     
     for (int i = 0; i < 4; i++) {
-        Instrument instr;
+        MIDISequence::Byte instr;
         switch (i)
         {
             case 0:
-                instr = Instrument::kick;
+                instr = 36;
                 break;
             case 1:
-                instr = Instrument::snare;
+                instr = 37;
                 break;
             case 2: 
-                instr = Instrument::hihat;
+                instr = 38;
                 break;
             case 3:
-                instr = Instrument::openhat;
+                instr = 39;
                 break;
             default:
                 throw std::domain_error("Instrument" + std::to_string((i-2)/2) + " is not defined");

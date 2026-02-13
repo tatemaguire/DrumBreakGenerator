@@ -135,7 +135,7 @@ MIDISequence DrumBreakGenerator::generateSequence(size_t num_steps, std::vector<
         result.append(rhythm);
     }
 
-    if (result.events.size() == 0) result.addNote(0, 4, Instrument::kick);
+    if (result.events.size() == 0) result.addNote(0, 4, 36); // if empty, make a C3
 
     result.sort();
 

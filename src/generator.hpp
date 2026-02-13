@@ -6,7 +6,7 @@
 #include "midi.hpp"
 
 struct InstrumentConfig {
-    Instrument instrument;
+    MIDISequence::Byte instrument;
     float density;
     float sub_density;
 };
