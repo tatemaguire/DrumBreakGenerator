@@ -2,7 +2,39 @@ cmake_minimum_required(VERSION 3.31.2)
 
 project(DrumBreakGenerator)
 
-# Executables
+# Libraries
+
+add_library(MIDISequence)
+target_sources(MIDISequence
+    PRIVATE
+        src/midi.cpp
+    PUBLIC
+        src/midi.hpp
+)
+
+
+add_library(Generator)
+target_sources(Generator
+    PRIVATE
+        src/generator.cpp
+    PUBLIC
+        src/generator.hpp
+)
+
+# Main CLI Executable
+
+add_executable(DrumBreakGenerator)
+target_sources(DrumBreakGenerator
+    PRIVATE
+        src/main.cpp
+)
+target_link_libraries(DrumBreakGenerator
+    PRIVATE
+        MIDISequence
+        Generator
+)
+
+# Test Executables
 
 add_executable(GeneratorTest)
 target_sources(GeneratorTest
@@ -24,23 +56,4 @@ target_sources(MIDITest
 target_link_libraries(MIDITest
     PRIVATE
         MIDISequence
-)
-
-# Libraries
-
-add_library(MIDISequence)
-target_sources(MIDISequence
-    PRIVATE
-        src/midi.cpp
-    PUBLIC
-        src/midi.hpp
-)
-
-
-add_library(Generator)
-target_sources(Generator
-    PRIVATE
-        src/generator.cpp
-    PUBLIC
-        src/generator.hpp
 )

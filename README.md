@@ -9,7 +9,7 @@ There are 2 ways to interface with this library. You can easily generate and dow
 ## 1. Website
 For an easy way to generate and download drum patterns as MIDI files, access the website [here!](https://tatemaguire.github.io/DrumBreakGeneratorWebsite/)
 
-## 2. Command Line Interface
+## 2. Building the Command Line Interface
 To use the CLI, you will have to build the binary application yourself, using cmake.
 
 ### Compiling
@@ -25,6 +25,13 @@ This will create the `build` folder with the proper settings for building, and t
 
 ### Running the Generator
 ------------------------
+```sh
+build/DrumBreakGenerator
+```
+or
+```sh
+build/DrumBreakGenerator.exe
+```
 
 ### Running Tests
 ------------------------
