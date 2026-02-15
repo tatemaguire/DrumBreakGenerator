@@ -11,10 +11,13 @@ const std::vector<InstrumentConfig> configs = {
     {39, 0.5, 0.5}
 };
 
-// TODO: remove this temp comment
-// broken: 600 steps with seed 3822954801
-
 int main(int argc, char* argv[]) {
+
+    // specific test case that used to break sorting
+    // previously broken: 600 steps with seed 3822954801
+    // previously broken: 20 steps with seed 2160201612
+    DrumBreakGenerator broken_gen = {3822954801};
+    MIDISequence broken_seq = broken_gen.generateSequence(600, configs);
 
     std::random_device rd;
     auto seed = rd();
@@ -24,7 +27,6 @@ int main(int argc, char* argv[]) {
 
     // this just checks that generation doesn't fail
     for (int i = 100; i <= 1000; i += 100) {
-        if (i == 600) continue;
         DrumBreakGenerator gen = {seed};
         std::cout << "generating " << i << " steps with seed " << gen.seed << std::endl;
         MIDISequence seq = gen.generateSequence(i, configs);

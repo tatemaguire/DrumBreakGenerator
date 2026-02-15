@@ -108,12 +108,18 @@ void MIDISequence::append(const MIDISequence& seq) {
     }
 }
 
+
 void MIDISequence::sort() {
+    int num_sorts = 0;
     std::sort(events.begin(), events.end(), [](const Event& a, const Event& b) {
+
         if (a.t != b.t) {
             return a.t < b.t; 
         } else {
-            return a.message == note_off;
+            bool a_on = (a.message == note_on);
+            bool b_on = (b.message == note_on);
+
+            return (!a_on) && b_on; // only true if a == off, b == on
         }
     });
 }
