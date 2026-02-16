@@ -5,41 +5,6 @@
 #include "generator.hpp"
 #include "midi.hpp"
 
-std::vector<InstrumentConfig> parseArgsToConfigs(int argc, char* argv[]) {
-    // Get configs from command line arguments
-    std::vector<InstrumentConfig> configs = {};
-
-    for (int i = 2; i < argc; i += 2) {
-        // choose instrument based on argument number in this order: kick, snare, hihat, openhat
-        MIDISequence::Byte instr;
-        switch (i)
-        {
-            case 0:
-                instr = 36;
-                break;
-            case 1:
-                instr = 37;
-                break;
-            case 2: 
-                instr = 38;
-                break;
-            case 3:
-                instr = 39;
-                break;
-            default:
-                throw std::domain_error("Instrument" + std::to_string((i-2)/2) + " is not defined");
-                break;
-        }
-        float density = std::stof(argv[i]);
-        float sub_density = std::stof(argv[i+1]);
-
-        InstrumentConfig c = {instr, density, sub_density};
-        configs.push_back(c);
-    }
-
-    return configs;
-}
-
 void print_help() {
     std::cout << "Usage: DrumBreakGenerator <num_steps> [options]" << std::endl
         << "                   num_steps is the number of 16th notes in the pattern" << std::endl
