@@ -131,11 +131,12 @@ MIDISequence DrumBreakGenerator::generateSequence(size_t num_steps, std::vector<
     MIDISequence result{num_steps};
 
     for (const InstrumentConfig& c : configs) {
+        re.seed(this->seed + c.instrument); // reseed the engine for every rhythm, creates pattern consistency with different num_steps
         MIDISequence rhythm = generateRhythm(num_steps, c, offset);
         result.append(rhythm);
     }
 
-    if (result.events.size() == 0) result.addNote(0, 4, 36); // if empty, make a C3
+    // if (result.events.size() == 0) result.addNote(0, 4, 36); // if empty, make a C3
 
     result.sort();
 

@@ -32,6 +32,10 @@ or
 ```sh
 build/DrumBreakGenerator.exe
 ```
+Example usage:
+```sh
+build/DrumBreakGenerator 32 -o sick_beat.mid --kick 0.5 0.1 --snare 0.3 0.4 --oh 0.2 0 --hh 0.4 0.3 --seed 2380037354
+```
 
 ### Running Tests
 ------------------------

@@ -1,9 +1,9 @@
 #include <iostream>
+#include <string>
+#include <random>
 
 #include "generator.hpp"
 #include "midi.hpp"
-
-const std::string out_path = "out.mid";
 
 std::vector<InstrumentConfig> parseArgsToConfigs(int argc, char* argv[]) {
     // Get configs from command line arguments
@@ -40,80 +40,125 @@ std::vector<InstrumentConfig> parseArgsToConfigs(int argc, char* argv[]) {
     return configs;
 }
 
-// creates 4 instrument configs with density and sub_density
-std::vector<InstrumentConfig> debugConfigs(float density, float sub_density) {
-    std::vector<InstrumentConfig> configs = {};
-    
-    for (int i = 0; i < 4; i++) {
-        MIDISequence::Byte instr;
-        switch (i)
-        {
-            case 0:
-                instr = 36;
-                break;
-            case 1:
-                instr = 37;
-                break;
-            case 2: 
-                instr = 38;
-                break;
-            case 3:
-                instr = 39;
-                break;
-            default:
-                throw std::domain_error("Instrument" + std::to_string((i-2)/2) + " is not defined");
-                break;
-        }
-        InstrumentConfig c = {instr, density, sub_density};
-        configs.push_back(c);
-    }
-
-    return configs;
+void print_help() {
+    std::cout << "Usage: DrumBreakGenerator <num_steps> [options]" << std::endl
+        << "                   num_steps is the number of 16th notes in the pattern" << std::endl
+        << "  -o <file path>" << std::endl
+        << "                 = output file path [include the file extension .mid]" << std::endl
+        << "  --kick <density> <sub_density>" << std::endl
+        << "                 = kick density and sub_density parameters [0.0 - 1.0]" << std::endl
+        << "  --snare <density> <sub_density>" << std::endl
+        << "                 = snare density and sub_density parameters [0.0 - 1.0]" << std::endl
+        << "  --hh <density> <sub_density>" << std::endl
+        << "                 = closed hi-hat density and sub_density parameters [0.0 - 1.0]" << std::endl
+        << "  --oh <density> <sub_density>" << std::endl
+        << "                 = open hi-hat density and sub_density parameters [0.0 - 1.0]" << std::endl
+        << "  --seed <seed_number>" << std::endl
+        << "                 = generator seed" << std::endl;
 }
 
-int makeBatch(int argc, char* argv[]) {
-    if (argc < 2) {
-        std::cout << "Usage: " << argv[0] << " <num steps>" << std::endl;
-        return 1;
-    }
-
-    int num_steps = std::stoi(argv[1]);
-
-    std::string out_name = "out_";
-    std::string file_extension = ".mid";
-    int file_ID = 0;
-
-    DrumBreakGenerator generator = {};
-
-    for (int i = 0; i <= 10; i++) {
-        float density = 0.1 * i;
-
-        if (std::abs(density - 1) < 0.05) density = 1;
-        std::cout << density << std::endl;
-        MIDISequence seq = generator.generateSequence(num_steps, debugConfigs(density, 0));
-        seq.writeToFile(out_name + std::to_string(file_ID++) + file_extension);
-    }
-
-    return 0;
+void print_usage() {
+    std::cout << "Usage: DrumBreakGenerator <num_steps> [options]" << std::endl
+            << "\t\tTo see a list of options run:  DrumBreakGenerator --help" << std::endl;
 }
 
 int main(int argc, char* argv[]) {
 
-    if (argc == 2) {
-        return makeBatch(argc, argv);
-    }
-
-    if (argc < 4) {
-        std::cout << "Usage: " << argv[0] << " <num steps> [<density_1> <subdensity_1>] [<density_2> <subdensity_2>] ..." << std::endl;
+    if (argc < 2) {
+        print_usage();
         return 1;
     }
 
-    // get values from arguments
+    // First argument should be --help or num_steps
+    if (std::string(argv[1]) == "--help") {
+        print_help();
+        return 0;
+    } 
     int num_steps = std::stoi(argv[1]);
-    std::vector<InstrumentConfig> configs = parseArgsToConfigs(argc, argv);
+    
+    // values to be filled by arguments
+    std::random_device rd; auto seed = rd();
+    std::string out_path = "out.mid";
+    std::vector<InstrumentConfig> configs;
+
+    // Parse arguments
+    for (int argi = 2; argi < argc; argi++) {
+
+        int args_left = argc - 1 - argi;
+        std::string argstr = argv[argi];
+
+        if (argstr == "--seed") {
+            if (args_left >= 1) {
+                seed = std::stoull(argv[argi + 1]);
+                argi++;
+            }
+            else {
+                print_usage();
+                return 1;
+            }
+        }
+        else if (argstr == "-o") {
+            if (args_left >= 1) {
+                out_path = argv[argi + 1];
+                argi++;
+            }
+            else {
+                print_usage();
+                return 1;
+            }
+        }
+        else if (argstr == "--kick") {
+            if (args_left >= 2) {
+                InstrumentConfig c = {36, std::stof(argv[argi + 1]), std::stof(argv[argi + 2])};
+                configs.emplace_back(c);
+                argi += 2;
+            }
+            else {
+                print_usage();
+                return 1;
+            }
+        }
+        else if (argstr == "--snare") {
+            if (args_left >= 2) {
+                InstrumentConfig c = {37, std::stof(argv[argi + 1]), std::stof(argv[argi + 2])};
+                configs.emplace_back(c);
+                argi += 2;
+            }
+            else {
+                print_usage();
+                return 1;
+            }
+        }
+        else if (argstr == "--hh") {
+            if (args_left >= 2) {
+                InstrumentConfig c = {38, std::stof(argv[argi + 1]), std::stof(argv[argi + 2])};
+                configs.emplace_back(c);
+                argi += 2;
+            }
+            else {
+                print_usage();
+                return 1;
+            }
+        }
+        else if (argstr == "--oh") {
+            if (args_left >= 2) {
+                InstrumentConfig c = {39, std::stof(argv[argi + 1]), std::stof(argv[argi + 2])};
+                configs.emplace_back(c);
+                argi += 2;
+            }
+            else {
+                print_usage();
+                return 1;
+            }
+        }
+        else {
+            print_usage();
+            return 1;
+        }
+    }
 
     // generation
-    DrumBreakGenerator generator = {};
+    DrumBreakGenerator generator = {seed};
     std::cout << "Seed: " << generator.seed << std::endl;
     MIDISequence seq = generator.generateSequence(num_steps, configs);
     
