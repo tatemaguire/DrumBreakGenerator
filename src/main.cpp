@@ -8,6 +8,7 @@
 void print_help() {
     std::cout << "Usage: DrumBreakGenerator <num_steps> [options]" << std::endl
         << "                   num_steps is the number of 16th notes in the pattern" << std::endl
+        << std::endl << "Options" << std::endl
         << "  -o <file path>" << std::endl
         << "                 = output file path [include the file extension .mid]" << std::endl
         << "  --kick <density> <sub_density>" << std::endl
