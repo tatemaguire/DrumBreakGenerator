@@ -61,7 +61,8 @@ Both of these values should be entered as a number between 0 and 1.
 **Subdivision Density**: how often those notes are split into two 32nd notes or four 64th notes. 
 
 # Example Outputs
-
+See example outputs:
+[https://youtu.be/Z_Yj49y-9wA](https://youtu.be/Z_Yj49y-9wA)
 
 # Known Limitations
 The tool currently lacks a consistency in the way it generates patterns. Typically when someone creates a rhythm,
